@@ -12,7 +12,8 @@ from typing import Any, Dict, List, Optional, Union
 from typing import TYPE_CHECKING
 from .models import (
     AgentId, Address, URI, Timestamp, IdemKey,
-    EndpointType, TrustModel, Endpoint, RegistrationFile
+    EndpointType, TrustModel, Endpoint, RegistrationFile,
+    ZERO_BYTES32
 )
 from .web3_client import Web3Client
 from .endpoint_crawler import EndpointCrawler
@@ -977,6 +978,39 @@ class Agent:
         self.registration_file.active = False
         self.registration_file.updatedAt = int(time.time())
         return self.registration_file
+
+    # ===== Validation Methods =====
+
+    def requestValidation(
+        self,
+        validatorAddress: str,
+        requestUri: str,
+        requestHash: str = ZERO_BYTES32,
+    ) -> str:
+        """Request validation from a validator."""
+        if not self.registration_file.agentId:
+            raise ValueError("Agent must be registered before requesting validation")
+        return self.sdk.requestValidation(
+            self.registration_file.agentId, validatorAddress, requestUri, requestHash
+        )
+
+    def getValidations(self) -> List[str]:
+        """Get all validation request hashes for this agent."""
+        if not self.registration_file.agentId:
+            raise ValueError("Agent must be registered to get validations")
+        return self.sdk.getAgentValidations(self.registration_file.agentId)
+
+    def getValidationSummary(
+        self,
+        validatorAddresses: Optional[List[str]] = None,
+        tag: str = ZERO_BYTES32,
+    ) -> Dict[str, Any]:
+        """Get validation summary for this agent."""
+        if not self.registration_file.agentId:
+            raise ValueError("Agent must be registered to get validation summary")
+        return self.sdk.getValidationSummary(
+            self.registration_file.agentId, validatorAddresses, tag
+        )
 
     # Utility methods
     def toJson(self) -> str:

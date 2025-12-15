@@ -365,10 +365,21 @@ class AgentIndexer:
         )
 
     async def _deep_refresh_agent(self, summary: AgentSummary):
-        """Perform deep refresh of agent capabilities."""
-        # This would crawl MCP/A2A endpoints to extract capabilities
-        # For now, it's a placeholder
-        pass
+        """Perform deep refresh of agent capabilities by crawling MCP/A2A endpoints.
+        
+        This feature requires crawling live endpoints to extract capabilities,
+        tools, prompts, and resources. Not yet implemented.
+        
+        Args:
+            summary: Agent summary to refresh
+            
+        Raises:
+            NotImplementedError: This feature is not yet implemented
+        """
+        raise NotImplementedError(
+            "Deep refresh (MCP/A2A endpoint crawling) is not yet implemented. "
+            "Use deep=False for basic agent refresh."
+        )
 
     def get_agent(self, agent_id: AgentId) -> AgentSummary:
         """Get agent summary from index."""

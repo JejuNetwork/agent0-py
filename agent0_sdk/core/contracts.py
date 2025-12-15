@@ -489,9 +489,57 @@ DEFAULT_REGISTRIES: Dict[int, Dict[str, str]] = {
     },
 }
 
-# Default subgraph URLs for different chains
-DEFAULT_SUBGRAPH_URLS: Dict[int, str] = {
-    11155111: "https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT",  # Ethereum Sepolia
-    84532: "https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/GjQEDgEKqoh5Yc8MUgxoQoRATEJdEiH7HbocfR1aFiHa",  # Base Sepolia
-    80002: "https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/2A1JB18r1mF2VNP4QBH4mmxd74kbHoM6xLXC8ABAKf7j",  # Polygon Amoy
+# Subgraph IDs for different chains (use with The Graph Gateway)
+SUBGRAPH_IDS: Dict[int, str] = {
+    11155111: "6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT",  # Ethereum Sepolia
+    84532: "GjQEDgEKqoh5Yc8MUgxoQoRATEJdEiH7HbocfR1aFiHa",  # Base Sepolia
+    80002: "2A1JB18r1mF2VNP4QBH4mmxd74kbHoM6xLXC8ABAKf7j",  # Polygon Amoy
 }
+
+
+import os
+
+
+def build_subgraph_url(chain_id: int, api_key: str) -> str:
+    """Build subgraph URL from API key and chain ID.
+    
+    Args:
+        chain_id: The chain ID (e.g., 11155111 for Sepolia)
+        api_key: The Graph API key
+        
+    Raises:
+        ValueError: If chain_id not supported or api_key is empty
+    """
+    if not api_key or not api_key.strip():
+        raise ValueError("API key is required. Get one at https://thegraph.com/studio/apikeys/")
+    subgraph_id = SUBGRAPH_IDS.get(chain_id)
+    if not subgraph_id:
+        raise ValueError(f"No subgraph configured for chain {chain_id}. Supported: {list(SUBGRAPH_IDS.keys())}")
+    return f"https://gateway.thegraph.com/api/{api_key}/subgraphs/id/{subgraph_id}"
+
+
+def get_default_subgraph_url(chain_id: int) -> str:
+    """Get default subgraph URL using SUBGRAPH_API_KEY env var.
+    
+    Raises:
+        ValueError: If SUBGRAPH_API_KEY not set
+    """
+    api_key = os.environ.get("SUBGRAPH_API_KEY")
+    if not api_key:
+        raise ValueError("SUBGRAPH_API_KEY environment variable is required")
+    return build_subgraph_url(chain_id, api_key)
+
+
+# Deprecated - use build_subgraph_url() or get_default_subgraph_url() instead
+class _LazySubgraphUrls(dict):
+    """Lazy dict that builds URLs on access, failing fast if API key not set."""
+    def __getitem__(self, chain_id: int) -> str:
+        return get_default_subgraph_url(chain_id)
+    
+    def get(self, chain_id: int, default: str = None) -> str:
+        if chain_id in SUBGRAPH_IDS:
+            return get_default_subgraph_url(chain_id)
+        return default
+
+
+DEFAULT_SUBGRAPH_URLS: Dict[int, str] = _LazySubgraphUrls()

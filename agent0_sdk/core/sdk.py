@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 from .models import (
     AgentId, ChainId, Address, URI, Timestamp, IdemKey,
     EndpointType, TrustModel, Endpoint, RegistrationFile,
-    AgentSummary, Feedback, SearchParams
+    AgentSummary, Feedback, SearchParams,
+    ZERO_BYTES32, ZERO_ADDRESS
 )
 from .web3_client import Web3Client
 from .contracts import (
@@ -1043,3 +1044,100 @@ class SDK:
             True if the address can transfer the agent, False otherwise
         """
         return self.isAgentOwner(agentId, address)
+
+    # ===== Validation Methods =====
+
+    def _parse_token_id(self, agentId: AgentId) -> int:
+        """Extract tokenId from agentId string."""
+        return int(str(agentId).split(":")[-1]) if ":" in str(agentId) else int(agentId)
+
+    def requestValidation(
+        self,
+        agentId: AgentId,
+        validatorAddress: str,
+        requestUri: str,
+        requestHash: str = ZERO_BYTES32,
+    ) -> str:
+        """Request validation from a validator."""
+        return self.web3_client.transact_contract(
+            self.validation_registry,
+            "validationRequest",
+            validatorAddress,
+            self._parse_token_id(agentId),
+            requestUri,
+            requestHash
+        )
+
+    def respondToValidation(
+        self,
+        requestHash: str,
+        response: int,
+        responseUri: str = "",
+        responseHash: str = ZERO_BYTES32,
+        tag: str = ZERO_BYTES32,
+    ) -> str:
+        """Submit a validation response (must be called by the validator)."""
+        if response < 0 or response > 100:
+            raise ValueError("Response must be between 0 and 100")
+        return self.web3_client.transact_contract(
+            self.validation_registry,
+            "validationResponse",
+            requestHash,
+            response,
+            responseUri,
+            responseHash,
+            tag
+        )
+
+    def getValidationStatus(self, requestHash: str) -> Optional[Dict[str, Any]]:
+        """Get validation status for a request. Returns None if not found."""
+        result = self.web3_client.call_contract(
+            self.validation_registry,
+            "getValidationStatus",
+            requestHash
+        )
+        if result[0].lower() == ZERO_ADDRESS:
+            return None
+        return {
+            "requestHash": requestHash,
+            "validatorAddress": result[0],
+            "agentId": f"{self.chainId}:{result[1]}",
+            "response": result[2],
+            "responseHash": result[3].hex() if isinstance(result[3], bytes) else result[3],
+            "tag": result[4].hex() if isinstance(result[4], bytes) else result[4],
+            "lastUpdate": result[5],
+        }
+
+    def getValidationSummary(
+        self,
+        agentId: AgentId,
+        validatorAddresses: Optional[List[str]] = None,
+        tag: str = ZERO_BYTES32,
+    ) -> Dict[str, Any]:
+        """Get validation summary for an agent."""
+        result = self.web3_client.call_contract(
+            self.validation_registry,
+            "getSummary",
+            self._parse_token_id(agentId),
+            validatorAddresses or [],
+            tag
+        )
+        return {"agentId": agentId, "count": result[0], "avgResponse": result[1]}
+
+    def getAgentValidations(self, agentId: AgentId) -> List[str]:
+        """Get all validation request hashes for an agent."""
+        result = self.web3_client.call_contract(
+            self.validation_registry,
+            "getAgentValidations",
+            self._parse_token_id(agentId)
+        )
+        return [h.hex() if isinstance(h, bytes) else h for h in result]
+
+    def getValidatorRequests(self, validatorAddress: str) -> List[str]:
+        """Get all validation request hashes for a validator."""
+        result = self.web3_client.call_contract(
+            self.validation_registry,
+            "getValidatorRequests",
+            validatorAddress
+        )
+        return [h.hex() if isinstance(h, bytes) else h for h in result]

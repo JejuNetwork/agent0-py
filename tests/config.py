@@ -12,22 +12,16 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-# Chain Configuration
+# Chain Configuration - RPC_URL is required for integration tests
 CHAIN_ID = int(os.getenv("CHAIN_ID", "11155111"))
-RPC_URL = os.getenv(
-    "RPC_URL",
-    "https://eth-sepolia.g.alchemy.com/v2/7nkA4bJ0tKWcl2-5Wn15c5eRdpGZ8DDr"
-)
+RPC_URL = os.getenv("RPC_URL", "")
 AGENT_PRIVATE_KEY = os.getenv("AGENT_PRIVATE_KEY", "")
 
 # IPFS Configuration (Pinata)
 PINATA_JWT = os.getenv("PINATA_JWT", "")
 
-# Subgraph Configuration
-SUBGRAPH_URL = os.getenv(
-    "SUBGRAPH_URL",
-    "https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT"
-)
+# Subgraph Configuration - optional
+SUBGRAPH_URL = os.getenv("SUBGRAPH_URL", "")
 
 # Agent ID for testing (can be overridden via env)
 AGENT_ID = os.getenv("AGENT_ID", "11155111:374")
@@ -37,10 +31,10 @@ def print_config():
     """Print current configuration (hiding sensitive values)."""
     print("Configuration:")
     print(f"  CHAIN_ID: {CHAIN_ID}")
-    print(f"  RPC_URL: {RPC_URL[:50]}...")
+    print(f"  RPC_URL: {RPC_URL[:50] + '...' if RPC_URL else 'NOT SET'}")
     print(f"  AGENT_PRIVATE_KEY: {'***' if AGENT_PRIVATE_KEY else 'NOT SET'}")
     print(f"  PINATA_JWT: {'***' if PINATA_JWT else 'NOT SET'}")
-    print(f"  SUBGRAPH_URL: {SUBGRAPH_URL[:50]}...")
+    print(f"  SUBGRAPH_URL: {SUBGRAPH_URL[:50] + '...' if SUBGRAPH_URL else 'NOT SET'}")
     print(f"  AGENT_ID: {AGENT_ID}")
     print()
 

@@ -20,6 +20,10 @@ CID = str  # IPFS CID (if used)
 Timestamp = int  # unix seconds
 IdemKey = str  # idempotency key for write ops
 
+# Blockchain constants
+ZERO_BYTES32 = "0x" + "00" * 32
+ZERO_ADDRESS = "0x" + "00" * 20
+
 
 class EndpointType(Enum):
     """Types of endpoints that agents can advertise."""
@@ -311,3 +315,42 @@ class SearchFeedbackParams:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary, filtering out None values."""
         return {k: v for k, v in self.__dict__.items() if v is not None}
+
+
+@dataclass
+class ValidationStatus:
+    """Validation status stored on-chain."""
+    requestHash: str  # bytes32
+    validatorAddress: Address
+    agentId: AgentId
+    response: int  # 0-100
+    responseHash: str  # bytes32
+    tag: str  # bytes32
+    lastUpdate: Timestamp
+
+
+@dataclass
+class ValidationRequest:
+    """Validation request data."""
+    validatorAddress: Address
+    agentId: AgentId
+    requestUri: URI
+    requestHash: str  # bytes32
+
+
+@dataclass
+class ValidationResponse:
+    """Validation response data."""
+    requestHash: str  # bytes32
+    response: int  # 0-100
+    responseUri: Optional[URI] = None
+    responseHash: Optional[str] = None  # bytes32
+    tag: Optional[str] = None  # bytes32
+
+
+@dataclass
+class ValidationSummary:
+    """Validation summary (aggregate statistics)."""
+    agentId: AgentId
+    count: int
+    avgResponse: int  # 0-100
