@@ -1,4 +1,6 @@
-# Agent0 SDK
+# jejunetwork-agent0
+
+> **Note:** This package was previously published as `agent0-sdk`. The new package name is `jejunetwork-agent0`.
 
 Python SDK for agent portability, discovery and trust based on ERC-8004.
 
@@ -20,7 +22,7 @@ Agent0 SDK v0.31 enables you to:
 
 Agent0 SDK v0.31 is in **alpha** with bugs and is not production ready. We're actively testing and improving it.
 
-**Bug reports & feedback:** GitHub: [Report issues](https://github.com/agent0lab/agent0-py/issues) | Telegram: [@marcoderossi](https://t.me/marcoderossi) | Email: marco.derossi@consensys.net
+**Bug reports & feedback:** GitHub: [Report issues](https://github.com/JejuNetwork/agent0-py/issues) | Telegram: [@marcoderossi](https://t.me/marcoderossi) | Email: team@jeju.network
 
 ## Installation
 
@@ -35,13 +37,13 @@ Agent0 SDK v0.31 is in **alpha** with bugs and is not production ready. We're ac
 ### Install from PyPI
 
 ```bash
-pip install agent0-sdk
+pip install jejunetwork-agent0
 ```
 
 ### Install from Source
 
 ```bash
-git clone https://github.com/agent0lab/agent0-py.git
+git clone https://github.com/JejuNetwork/agent0-py.git
 cd agent0-py
 pip install -e .
 ```
