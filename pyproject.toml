@@ -3,17 +3,19 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agent0-sdk"
+name = "jejunetwork-agent0"
 version = "0.31"
 description = "Python SDK for agent portability, discovery and trust based on ERC-8004"
 authors = [
+    {name = "Jeju Network", email = "team@jeju.network"},
     {name = "Marco De Rossi", email = "marco.derossi@consensys.net"}
 ]
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 requires-python = ">=3.8"
+keywords = ["erc-8004", "agent", "blockchain", "ethereum", "ipfs", "reputation", "validation", "jeju"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -56,10 +58,10 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://sdk.ag0.xyz"
-Repository = "https://github.com/agent0lab/agent0-py"
-Documentation = "https://sdk.ag0.xyz"
-"Source Code" = "https://github.com/agent0lab/agent0-py"
+Homepage = "https://jeju.network"
+Repository = "https://github.com/JejuNetwork/agent0-py"
+Documentation = "https://docs.jeju.network/sdk"
+"Source Code" = "https://github.com/JejuNetwork/agent0-py"
 
 [tool.setuptools.packages.find]
 where = ["."]
